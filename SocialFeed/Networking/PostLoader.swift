@@ -6,53 +6,40 @@
 //
 
 import Foundation
-import UIKit
 
-protocol IPostLoader {
-    func loadPosts(completion: @escaping (Result<[Post], Error>) -> ())
+enum NetworkError: Error {
+    case statusCode
+    case noData
 }
 
-final class PostLoader: IPostLoader {
-    
-    private let session: URLSession
-    private let decoder: JSONDecoder
-    
-    init(session: URLSession = URLSession.shared, decoder: JSONDecoder = JSONDecoder()) {
-        self.session = session
-        self.decoder = decoder
-    }
-    
-    func loadPosts(completion: @escaping (Result<[Post], Error>) -> ()) {
-        
+final class PostLoader {
+    private let session = URLSession.shared
+    private let decoder = JSONDecoder()
+
+    func loadPosts(completion: @escaping (Result<[Post], Error>) -> Void) {
+
         guard let url = URL(string: "https://jsonplaceholder.typicode.com/posts") else { return }
-        
-        let task = session.dataTask(with: url) { data, response, error in
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
+
+        session.dataTask(with: url) { data, _, error in
+
+            if error != nil {
+                completion(.failure(NetworkError.statusCode))
                 return
             }
-            
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.statusCode))
-                }
+
+            guard let data else {
+                completion(.failure(NetworkError.noData))
                 return
             }
-            
+
             do {
                 let posts = try self.decoder.decode([Post].self, from: data)
-                DispatchQueue.main.async {
-                    completion(.success(posts))
-                }
+                completion(.success(posts))
             } catch {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
+                completion(.failure(error))
             }
-        }
-        task.resume()
+
+        }.resume()
     }
 }
+

@@ -14,7 +14,7 @@ final class CoreDataManager {
     private init() {}
 
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "SocialFeed2") // твое имя модели!
+        let container = NSPersistentContainer(name: "Model")
         container.loadPersistentStores { _, error in
             if let error = error { fatalError("CoreData error: \(error)") }
         }
@@ -25,16 +25,13 @@ final class CoreDataManager {
         persistentContainer.viewContext
     }
 
-    // MARK: Save
     func savePosts(_ dtos: [Post]) {
 
-        // Очищаем старые
         let fetch = Entity.fetchRequest()
         if let old = try? context.fetch(fetch) {
             old.forEach { context.delete($0) }
         }
 
-        // Добавляем новые
         for dto in dtos {
             let post = Entity(context: context)
             post.id = Int64(dto.id ?? 0)
@@ -46,13 +43,11 @@ final class CoreDataManager {
         saveContext()
     }
 
-    // MARK: Fetch
     func fetchPosts() -> [Entity] {
         let request = Entity.fetchRequest()
         return (try? context.fetch(request)) ?? []
     }
 
-    // MARK: Save Context
     func saveContext() {
         if context.hasChanges {
             try? context.save()

@@ -14,17 +14,18 @@ final class MainFeedController: UIViewController {
     private var postLoader = PostLoader()
 
     private lazy var tableView: UITableView = {
-        let tv = UITableView()
-        tv.dataSource = self
-        tv.delegate = self
-        tv.register(PostCell.self, forCellReuseIdentifier: PostCell.reuseID)
-        return tv
+        let tableView = UITableView()
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(PostCell.self, forCellReuseIdentifier: PostCell.reuseID)
+        tableView.separatorStyle = .none
+        return tableView
     }()
 
     private lazy var refreshControl: UIRefreshControl = {
-        let rc = UIRefreshControl()
-        rc.addTarget(self, action: #selector(refreshFeed), for: .valueChanged)
-        return rc
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshFeed), for: .valueChanged)
+        return refreshControl
     }()
 
     override func viewDidLoad() {
@@ -32,11 +33,9 @@ final class MainFeedController: UIViewController {
         setupViews()
         setupConstraints()
 
-        // 1. Загружаем оффлайн-посты
         posts = CoreDataManager.shared.fetchPosts()
         tableView.reloadData()
 
-        // 2. Загружаем новые
         fetchPosts()
     }
 
@@ -57,7 +56,7 @@ final class MainFeedController: UIViewController {
     }
 
     private func fetchPosts() {
-
+        
         postLoader.loadPosts { result in
 
             DispatchQueue.main.async {
@@ -65,9 +64,9 @@ final class MainFeedController: UIViewController {
             }
 
             switch result {
-            case .success(let postsDTO):
+            case .success(let posts):
 
-                CoreDataManager.shared.savePosts(postsDTO)
+                CoreDataManager.shared.savePosts(posts)
                 self.posts = CoreDataManager.shared.fetchPosts()
 
                 DispatchQueue.main.async {
