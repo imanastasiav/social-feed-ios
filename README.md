@@ -8,7 +8,7 @@
 
 
 
-<img width="349" height="707" alt="Screenshot 2025-11-23 at 12 52 50" src="https://github.com/user-attachments/assets/3650deb3-2b61-4272-a494-288f7bc1ea57" />
+<img width="200" height="450" alt="Screenshot 2025-11-23 at 12 52 50" src="https://github.com/user-attachments/assets/3650deb3-2b61-4272-a494-288f7bc1ea57" />
 
 
 ---
